@@ -1,18 +1,21 @@
-import 'package:financial_tracker/common/errors/errors_classes.dart';
-import 'package:financial_tracker/common/patterns/command.dart';
-import 'package:financial_tracker/domain/entity/transaction_entity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
-/// Um widget reutilizável de formulário para adicionar transações de receita ou despesa
-class TransactionForm extends StatefulWidget {
-  /// Comando que deve ser observado o estado de execução
-  /// e o resultado da execução
-  final Command1<void, Failure, TransactionEntity> submitCommand;
+import '../../common/errors/errors_classes.dart';
+import '../../common/patterns/command.dart';
+import '../../common/theme/app_theme.dart';
+import '../../domain/entity/transaction_entity.dart';
 
-  /// Função de callback quando o formulário é enviado
-  //final Function(TransactionEntity newTransaction) onSubmit;
+/// Formulário para adicionar transações de receita ou despesa.
+///
+/// Re-estilizado com a paleta PicPay — inputs com bordas suaves,
+/// botão verde arredondado, animações de loading.
+class TransactionForm extends StatefulWidget {
+  /// Comando para submeter a transação
+  final Command1<void, Failure, TransactionEntity> submitCommand;
 
   /// Tipo de transação (receita ou despesa)
   final TransactionType type;
@@ -22,7 +25,6 @@ class TransactionForm extends StatefulWidget {
 
   const TransactionForm({
     super.key,
-    //required this.onSubmit,
     required this.type,
     required this.color,
     required this.submitCommand,
@@ -45,46 +47,52 @@ class _TransactionFormState extends State<TransactionForm> {
     super.dispose();
   }
 
-  /// Exibe o seletor de datas e atualiza a data selecionada
   void _presentDatePicker() async {
     final pickedDate = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(2020),
       lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: widget.color,
+              onPrimary: Colors.white,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (pickedDate != null) {
-      setState(() {
-        _selectedDate = pickedDate;
-      });
+      setState(() => _selectedDate = pickedDate);
     }
   }
 
-  /// Envia o formulário se a validação for bem-sucedida
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      final enteredTitle = _titleController.text;
-      final enteredAmount = double.parse(_amountController.text);
-
+      HapticFeedback.mediumImpact();
       final newTransaction = TransactionEntity(
-        title: enteredTitle,
-        amount: enteredAmount,
+        title: _titleController.text,
+        amount: double.parse(_amountController.text),
         date: _selectedDate,
         type: widget.type,
       );
 
-      //widget.onSubmit(newTransaction);
       await widget.submitCommand.execute(newTransaction);
 
+      if (!mounted) return;
+
       if (widget.submitCommand.resultSignal.value?.isFailure ?? false) {
-        // Se o comando falhar, exibe uma mensagem de erro
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Erro ao adicionar ${widget.type.nameSingular}: ${widget.submitCommand.resultSignal.value?.failureValueOrNull ?? 'Erro desconhecido'}',
+              'Erro ao adicionar ${widget.type.nameSingular}: '
+              '${widget.submitCommand.resultSignal.value?.failureValueOrNull ?? 'Erro desconhecido'}',
             ),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.expense,
             duration: const Duration(seconds: 2),
           ),
         );
@@ -92,18 +100,14 @@ class _TransactionFormState extends State<TransactionForm> {
         return;
       }
 
-      // Limpa os campos do formulário
       _titleController.clear();
       _amountController.clear();
-      setState(() {
-        _selectedDate = DateTime.now();
-      });
+      setState(() => _selectedDate = DateTime.now());
 
-      // Mostra uma mensagem de sucesso
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${widget.type.nameSingular} Adicionada com Sucesso!'),
-          backgroundColor: widget.color,
+          content: Text('${widget.type.nameSingular} adicionada com sucesso!'),
+          backgroundColor: AppColors.primary,
           duration: const Duration(seconds: 2),
         ),
       );
@@ -114,22 +118,20 @@ class _TransactionFormState extends State<TransactionForm> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(20),
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Campo de entrada para a descrição (título)
+            // ─── Campo: Descrição ───
             TextFormField(
               controller: _titleController,
               decoration: InputDecoration(
                 labelText: 'Descrição',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                prefixIcon: const Icon(Icons.description),
+                prefixIcon: Icon(Icons.description_rounded, color: widget.color),
               ),
+              style: GoogleFonts.montserrat(fontSize: 14),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Informe uma descrição';
@@ -139,23 +141,18 @@ class _TransactionFormState extends State<TransactionForm> {
             ),
             const SizedBox(height: 16),
 
-            // Campo de entrada para o valor
+            // ─── Campo: Valor ───
             TextFormField(
               controller: _amountController,
               decoration: InputDecoration(
                 labelText: 'Valor',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                prefixIcon: const Icon(Icons.attach_money),
+                prefixIcon: Icon(Icons.attach_money_rounded, color: widget.color),
               ),
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
+              style: GoogleFonts.montserrat(fontSize: 14),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
               validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Informe um valor';
-                }
+                if (value == null || value.isEmpty) return 'Informe um valor';
                 if (double.tryParse(value) == null) {
                   return 'Digite um número válido';
                 }
@@ -167,59 +164,75 @@ class _TransactionFormState extends State<TransactionForm> {
             ),
             const SizedBox(height: 16),
 
-            // Seção para exibir e escolher a data
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Data: ${DateFormat('dd/MM/yyyy').format(_selectedDate)}',
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                ),
-                TextButton(
-                  onPressed: _presentDatePicker,
-                  child: Text(
-                    'Selecionar Data',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: widget.color,
+            // ─── Seletor de Data ───
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.divider),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.calendar_today_rounded,
+                      color: widget.color, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      DateFormat('dd/MM/yyyy').format(_selectedDate),
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                  TextButton(
+                    onPressed: _presentDatePicker,
+                    child: Text(
+                      'Alterar',
+                      style: GoogleFonts.montserrat(
+                        fontWeight: FontWeight.w600,
+                        color: widget.color,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 32),
 
-            // Botão de envio do formulário
+            // ─── Botão de Envio ───
             Watch((context) {
               final isRunning = widget.submitCommand.runningSignal.value;
 
               return SizedBox(
-                height: 50,
+                height: 52,
                 child: ElevatedButton(
-                  onPressed: _submitForm,
+                  onPressed: isRunning ? null : _submitForm,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: widget.color,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child:
-                      isRunning
-                          ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white,
-                              ),
-                            ),
-                          )
-                          : Text(
-                            'Adicionar ${widget.type.nameSingular}',
-                            style: const TextStyle(fontSize: 16),
+                  child: isRunning
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
+                        )
+                      : Text(
+                          'Adicionar ${widget.type.nameSingular}',
+                          style: GoogleFonts.montserrat(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               );
             }),
