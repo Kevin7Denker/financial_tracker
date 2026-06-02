@@ -16,18 +16,6 @@ import '../widget/summary_pie_chart.dart';
 import '../widget/transaction_bottom_sheet.dart';
 import '../widget/transaction_list_item.dart';
 
-/// Tela principal do aplicativo (Dashboard).
-///
-/// Integra todos os componentes visuais:
-/// - SliverAppBar expansível com saudação do usuário
-/// - AnimatedBalanceCard (saldo com ocultar/mostrar)
-/// - Botões de ação (Receita / Despesa)
-/// - DateFilterPanel (com animação de abertura/fechamento)
-/// - SummaryPieChart (gráfico receitas vs. despesas)
-/// - Lista de transações com TransactionListItem + Dismissible
-///
-/// Usa [AnimatedViewMixin] para animação de entrada da tela.
-/// Dados vindos do [HomePageController] existente via Signals.
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -57,7 +45,10 @@ class _DashboardScreenState extends State<DashboardScreen>
     TransactionBottomSheet.show(
       context: context,
       type: type,
-      submitCommand: _controller.saveTransaction,
+      submitCommand:
+          type == TransactionType.income
+              ? _controller.addIncome
+              : _controller.addExpense,
     );
   }
 
@@ -73,35 +64,31 @@ class _DashboardScreenState extends State<DashboardScreen>
           final expenses = _controller.expenses.value;
           final isFilterVisible = _controller.isFilterVisible.value;
 
-          // Monta o UserViewModel com dados atuais
           final user = UserViewModel.mock(
             balance: balance,
             totalIncome: income,
             totalExpense: expense,
           );
 
-          // Converte entities em ViewModels para a lista
           final allTransactions = [...incomes, ...expenses]
             ..sort((a, b) => b.date.compareTo(a.date));
-          final viewModels = allTransactions
-              .map((e) => TransactionViewModel.fromEntity(e))
-              .toList();
+          final viewModels =
+              allTransactions
+                  .map((e) => TransactionViewModel.fromEntity(e))
+                  .toList();
 
           return CustomScrollView(
             physics: const BouncingScrollPhysics(
               parent: AlwaysScrollableScrollPhysics(),
             ),
             slivers: [
-              // ─── SliverAppBar expansível ───
               _buildSliverAppBar(user, isFilterVisible),
 
-              // ─── Conteúdo principal ───
               SliverToBoxAdapter(
                 child: Column(
                   children: [
                     const SizedBox(height: 8),
 
-                    // ─── Balance Card ───
                     AnimatedBalanceCard(
                       balance: balance,
                       totalIncome: income,
@@ -111,83 +98,71 @@ class _DashboardScreenState extends State<DashboardScreen>
 
                     const SizedBox(height: 16),
 
-                    // ─── Botões de ação ───
                     _buildActionButtons(),
 
                     const SizedBox(height: 8),
 
-                    // ─── Filtro de data (animado) ───
                     AnimatedSize(
                       duration: const Duration(milliseconds: 350),
                       curve: Curves.easeInOut,
-                      child: isFilterVisible
-                          ? DateFilterPanel(
-                              filtro: (
-                                type: _controller.filterType,
-                                startDate: _controller.startDate,
-                                endDate: _controller.endDate,
-                              ),
-                              onFilterChanged: (startDate, endDate) {
-                                _controller.searchTransactionsByDate
-                                    .execute(startDate!, endDate!);
-                              },
-                              onUpdateFilter: (type, startDate, endDate) {
-                                _controller.setFiltersParams(
-                                  type,
-                                  startDate,
-                                  endDate,
-                                );
-                              },
-                              onAllTransactionsFiltered: () {
-                                _controller.load.execute();
-                              },
-                              onTapHideFilter:
-                                  _controller.toggleFilterVisibility,
-                            )
-                          : const SizedBox.shrink(),
+                      child:
+                          isFilterVisible
+                              ? DateFilterPanel(
+                                filtro: (
+                                  type: _controller.filterType,
+                                  startDate: _controller.startDate,
+                                  endDate: _controller.endDate,
+                                ),
+                                onFilterChanged: (startDate, endDate) {
+                                  _controller.searchTransactionsByDate.execute(
+                                    startDate!,
+                                    endDate!,
+                                  );
+                                },
+                                onUpdateFilter: (type, startDate, endDate) {
+                                  _controller.setFiltersParams(
+                                    type,
+                                    startDate,
+                                    endDate,
+                                  );
+                                },
+                                onAllTransactionsFiltered: () {
+                                  _controller.load.execute();
+                                },
+                                onTapHideFilter:
+                                    _controller.toggleFilterVisibility,
+                              )
+                              : const SizedBox.shrink(),
                     ),
 
                     const SizedBox(height: 8),
 
-                    // ─── Gráfico de pizza ───
-                    SummaryPieChart(
-                      totalIncome: income,
-                      totalExpense: expense,
-                    ),
+                    SummaryPieChart(totalIncome: income, totalExpense: expense),
 
                     const SizedBox(height: 16),
 
-                    // ─── Cabeçalho da lista ───
                     _buildTransactionsHeader(viewModels.length),
                   ],
                 ),
               ),
 
-              // ─── Lista de transações ───
               if (viewModels.isEmpty)
                 SliverToBoxAdapter(child: _buildEmptyTransactions())
               else
                 SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final vm = viewModels[index];
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final vm = viewModels[index];
 
-                      return Dismissible(
-                        key: Key(vm.id),
-                        direction: DismissDirection.endToStart,
-                        background: _buildDismissBackground(),
-                        onDismissed: (_) => _onTransactionDismissed(vm),
-                        child: TransactionListItem(
-                          transaction: vm,
-                          onTap: () {},
-                        ),
-                      );
-                    },
-                    childCount: viewModels.length,
-                  ),
+                    return Dismissible(
+                      key: Key(vm.id),
+                      direction: DismissDirection.endToStart,
+                      background: _buildDismissBackground(),
+                      onDismissed: (_) => _onTransactionDismissed(vm),
+                      child: TransactionListItem(transaction: vm, onTap: () {}),
+                    );
+                  }, childCount: viewModels.length),
                 ),
 
-              // Espaço final para scroll
               const SliverToBoxAdapter(child: SizedBox(height: 32)),
             ],
           );
@@ -196,7 +171,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  /// SliverAppBar expansível com gradiente verde e saudação
   Widget _buildSliverAppBar(UserViewModel user, bool isFilterVisible) {
     return SliverAppBar(
       expandedHeight: 100,
@@ -224,7 +198,6 @@ class _DashboardScreenState extends State<DashboardScreen>
         ),
       ),
       actions: [
-        // Botão de filtro
         IconButton(
           icon: Icon(
             isFilterVisible
@@ -238,7 +211,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  /// Botões de ação: Receita e Despesa
   Widget _buildActionButtons() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -266,7 +238,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  /// Cabeçalho "Transações Recentes" com badge de contagem
   Widget _buildTransactionsHeader(int count) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -278,7 +249,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             style: GoogleFonts.montserrat(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: AppColors.primaryLight,
             ),
           ),
           Container(
@@ -301,7 +272,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  /// Background vermelho do swipe-to-delete
   Widget _buildDismissBackground() {
     return Container(
       alignment: Alignment.centerRight,
@@ -315,7 +285,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  /// Estado vazio da lista
   Widget _buildEmptyTransactions() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 48),
@@ -344,7 +313,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  /// Callback quando uma transação é excluída pelo swipe
   void _onTransactionDismissed(TransactionViewModel vm) async {
     final undoEntity = vm.entity.copyWith();
     await _controller.deleteTransaction.execute(vm.id);
@@ -353,17 +321,17 @@ class _DashboardScreenState extends State<DashboardScreen>
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          '${vm.title} excluída!',
-          style: GoogleFonts.montserrat(),
-        ),
+        content: Text('${vm.title} excluída!', style: GoogleFonts.montserrat()),
         backgroundColor: AppColors.expense,
         action: SnackBarAction(
           label: 'DESFAZER',
           textColor: Colors.white,
           onPressed: () async {
             await _controller.undoDelectedTransaction.execute(undoEntity);
-            if (_controller.undoDelectedTransaction.resultSignal.value
+            if (_controller
+                    .undoDelectedTransaction
+                    .resultSignal
+                    .value
                     ?.isSuccess ??
                 false) {
               if (!mounted) return;

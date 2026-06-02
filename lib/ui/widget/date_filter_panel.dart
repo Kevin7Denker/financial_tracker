@@ -5,25 +5,16 @@ import 'package:intl/intl.dart';
 import '../../common/theme/app_theme.dart';
 import '../../common/types/date_filter_type.dart';
 
-/// Painel de filtro de data para transações.
-///
-/// Re-estilizado com a paleta PicPay — chips verdes, superfícies brancas,
-/// bordas arredondadas. Mantém toda a lógica funcional original.
 class DateFilterPanel extends StatefulWidget {
-  /// Callback quando o filtro muda (com start/end date)
   final Function(DateTime? startDate, DateTime? endDate) onFilterChanged;
 
-  /// Callback para buscar todas as transações (filtro "Tudo")
   final Function() onAllTransactionsFiltered;
 
-  /// Callback para atualizar os parâmetros do filtro no controller
   final Function(DateFilterType type, DateTime? startDate, DateTime? endDate)
-      onUpdateFilter;
+  onUpdateFilter;
 
-  /// Callback para ocultar o painel de filtros
   final VoidCallback? onTapHideFilter;
 
-  /// Estado atual do filtro (tipo, start, end)
   final ({DateFilterType type, DateTime? startDate, DateTime? endDate}) filtro;
 
   const DateFilterPanel({
@@ -127,14 +118,13 @@ class _DateFilterPanelState extends State<DateFilterPanel> {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        gradient: AppGradients.filterPanel,
         borderRadius: BorderRadius.circular(16),
         boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ─── Cabeçalho ───
           Row(
             children: [
               GestureDetector(
@@ -163,7 +153,7 @@ class _DateFilterPanelState extends State<DateFilterPanel> {
                   ),
                 ),
               ),
-              // Botão de fechar
+
               GestureDetector(
                 onTap: widget.onTapHideFilter,
                 child: Icon(
@@ -176,7 +166,6 @@ class _DateFilterPanelState extends State<DateFilterPanel> {
           ),
           const SizedBox(height: 14),
 
-          // ─── Chips de filtro ───
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -189,7 +178,6 @@ class _DateFilterPanelState extends State<DateFilterPanel> {
             ],
           ),
 
-          // ─── Range de data customizado ───
           if (_filterType == DateFilterType.custom &&
               _startDate != null &&
               _endDate != null) ...[

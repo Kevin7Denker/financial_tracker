@@ -4,30 +4,19 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../common/theme/app_theme.dart';
 
-/// Botão principal arredondado, verde com texto branco.
-///
-/// Features:
-/// - Animação de scale ao ser pressionado (press down → scale 0.95)
-/// - Haptic feedback no tap
-/// - Estado de loading com CircularProgressIndicator
-/// - Ícone opcional à esquerda do label
 class PrimaryActionButton extends StatefulWidget {
-  /// Texto do botão
   final String label;
 
-  /// Ícone opcional (exibido à esquerda do label)
   final IconData? icon;
 
-  /// Callback ao pressionar
   final VoidCallback? onPressed;
 
-  /// Se true, exibe um spinner ao invés do conteúdo
   final bool isLoading;
 
-  /// Cor de fundo (padrão: AppColors.primary)
+  final Gradient? gradient;
+
   final Color? backgroundColor;
 
-  /// Cor do texto/ícone (padrão: branco)
   final Color? foregroundColor;
 
   const PrimaryActionButton({
@@ -36,6 +25,7 @@ class PrimaryActionButton extends StatefulWidget {
     this.icon,
     this.onPressed,
     this.isLoading = false,
+    this.gradient,
     this.backgroundColor,
     this.foregroundColor,
   });
@@ -56,9 +46,10 @@ class _PrimaryActionButtonState extends State<PrimaryActionButton>
       vsync: this,
       duration: const Duration(milliseconds: 120),
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.95,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -77,10 +68,23 @@ class _PrimaryActionButtonState extends State<PrimaryActionButton>
 
   void _onTapCancel() => _controller.reverse();
 
+  Gradient _resolveGradient() {
+    if (widget.gradient != null) return widget.gradient!;
+    final base = widget.backgroundColor ?? AppColors.primary;
+    final lighter = Color.lerp(base, Colors.white, 0.15)!;
+    final darker = Color.lerp(base, Colors.black, 0.15)!;
+    return LinearGradient(
+      colors: [lighter, base, darker],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final bg = widget.backgroundColor ?? AppColors.primary;
     final fg = widget.foregroundColor ?? Colors.white;
+    final gradient = _resolveGradient();
+    final shadowColor = widget.backgroundColor ?? AppColors.primary;
 
     return ScaleTransition(
       scale: _scaleAnimation,
@@ -92,13 +96,19 @@ class _PrimaryActionButtonState extends State<PrimaryActionButton>
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           decoration: BoxDecoration(
-            color: widget.isLoading ? bg.withValues(alpha: 0.7) : bg,
+            gradient: widget.isLoading ? null : gradient,
+            color:
+                widget.isLoading
+                    ? (widget.backgroundColor ?? AppColors.primary).withValues(
+                      alpha: 0.5,
+                    )
+                    : null,
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
-                color: bg.withValues(alpha: 0.25),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
+                color: shadowColor.withValues(alpha: 0.3),
+                blurRadius: 14,
+                offset: const Offset(0, 6),
               ),
             ],
           ),

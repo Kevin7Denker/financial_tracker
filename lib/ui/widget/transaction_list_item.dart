@@ -6,32 +6,17 @@ import '../../common/theme/app_theme.dart';
 import '../model/transaction_view_model.dart';
 import 'base_card.dart';
 
-/// Item de lista responsivo para exibir uma transação.
-///
-/// Extende [BaseCard] por composição — utiliza a mesma base visual (sombra,
-/// border radius) e implementa [buildCardContent] com layout específico.
-///
-/// Features:
-/// - CircleAvatar com ícone de categoria (verde/vermelho)
-/// - Título, data relativa e valor formatado com cor semântica
-/// - InkWell com ripple effect
-/// - Hero tag baseado no ID da transação para transições
 class TransactionListItem extends BaseCard {
-  /// ViewModel da transação com dados formatados
   final TransactionViewModel transaction;
 
-  /// Callback ao tocar no item
   final VoidCallback? onTap;
 
-  const TransactionListItem({
-    super.key,
-    required this.transaction,
-    this.onTap,
-  }) : super(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          padding: EdgeInsets.zero,
-          borderRadius: 14,
-        );
+  const TransactionListItem({super.key, required this.transaction, this.onTap})
+    : super(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        padding: EdgeInsets.zero,
+        borderRadius: 14,
+      );
 
   @override
   Widget buildCardContent(BuildContext context) {
@@ -49,14 +34,11 @@ class TransactionListItem extends BaseCard {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               children: [
-                // ─── Ícone de categoria ───
                 _buildCategoryAvatar(),
                 const SizedBox(width: 14),
 
-                // ─── Título e data ───
                 Expanded(child: _buildInfo(context)),
 
-                // ─── Valor ───
                 _buildAmount(),
               ],
             ),
@@ -66,13 +48,15 @@ class TransactionListItem extends BaseCard {
     );
   }
 
-  /// Avatar circular com ícone da categoria
   Widget _buildCategoryAvatar() {
     return Container(
       width: 44,
       height: 44,
       decoration: BoxDecoration(
-        color: transaction.iconBackgroundColor,
+        gradient:
+            transaction.isIncome
+                ? AppGradients.incomeLight
+                : AppGradients.expenseLight,
         borderRadius: BorderRadius.circular(13),
       ),
       child: Icon(
@@ -83,7 +67,6 @@ class TransactionListItem extends BaseCard {
     );
   }
 
-  /// Título e data relativa
   Widget _buildInfo(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,7 +94,6 @@ class TransactionListItem extends BaseCard {
     );
   }
 
-  /// Valor formatado com cor semântica
   Widget _buildAmount() {
     return Text(
       transaction.signedAmount,

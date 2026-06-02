@@ -17,17 +17,8 @@ class TransactionFakeRepository {
       (index) => TransactionFakeFactory.factory(),
     );
   }
-  // StudentFakeApiDataBase() {
-  //   if (Random().nextBool()) {
-  //     student = StudenteFakeFactory.factory();
-  //   }
-  // }
 
   Future<String> getData() async {
-    // if (Random().nextBool()) {
-    //   return throw APIFailure(MessagesError.apiError);
-    // }
-
     return (transactions.isEmpty)
         ? throw DatasourceResultEmpty(MessagesError.emptySharedP)
         : jsonEncode(transactions.map((e) => e.toMap()).toList());
@@ -45,13 +36,6 @@ class TransactionFakeRepository {
 
   Future<void> addData(String transactionJson) async {
     await Future.delayed(const Duration(seconds: 2));
-
-    // Simula uma falha
-    if (Random().nextBool()) {
-      Random().nextBool()
-          ? throw APIFailure(MessagesError.apiError)
-          : throw InvalidData(MessagesError.recordInvalidFormat);
-    }
 
     if (transactionJson.isEmpty) {
       throw InvalidData(MessagesError.recordInvalidFormat);
@@ -80,13 +64,4 @@ class TransactionFakeRepository {
 
     return jsonEncode(filteredTransactions.map((e) => e.toMap()).toList());
   }
-
-  // Future<bool> updateData(String studentJson) async {
-  //   try {
-  //     student = StudentInfoEntity.fromJson(studentJson);
-  //     return true;
-  //   } catch (e) {
-  //     throw APIFailureOnSave('erro ao salvar: ${e.toString()}');
-  //   }
-  // }
 }

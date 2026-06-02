@@ -5,15 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../common/theme/app_theme.dart';
 import '../../common/utils/formatter.dart';
 
-/// Widget de gráfico de pizza mostrando proporção Receitas vs. Despesas.
-///
-/// Utiliza a nova paleta verde/vermelho da identidade PicPay.
-/// Exibe estado vazio quando não há dados disponíveis.
 class SummaryPieChart extends StatelessWidget {
-  /// Total de receitas
   final double totalIncome;
 
-  /// Total de despesas
   final double totalExpense;
 
   const SummaryPieChart({
@@ -37,7 +31,6 @@ class SummaryPieChart extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ─── Cabeçalho ───
           Row(
             children: [
               Container(
@@ -65,7 +58,6 @@ class SummaryPieChart extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // ─── Gráfico ou Estado Vazio ───
           if (totalIncome == 0 && totalExpense == 0)
             _buildEmptyState(context)
           else
@@ -80,9 +72,17 @@ class SummaryPieChart extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _buildLegendItem('Receitas', AppColors.income, totalIncome),
+                        _buildLegendItem(
+                          'Receitas',
+                          AppColors.income,
+                          totalIncome,
+                        ),
                         const SizedBox(height: 16),
-                        _buildLegendItem('Despesas', AppColors.expense, totalExpense),
+                        _buildLegendItem(
+                          'Despesas',
+                          AppColors.expense,
+                          totalExpense,
+                        ),
                       ],
                     ),
                   ),
@@ -171,7 +171,11 @@ class SummaryPieChart extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.insert_chart_rounded, size: 48, color: AppColors.disabled),
+            Icon(
+              Icons.insert_chart_rounded,
+              size: 48,
+              color: AppColors.disabled,
+            ),
             const SizedBox(height: 12),
             Text(
               'Sem transações cadastradas',

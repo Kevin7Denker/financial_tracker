@@ -37,6 +37,110 @@ class AppColors {
   static const Color darkCard = Color(0xFF242438);
 }
 
+/// Gradientes reutilizáveis para profundidade e movimento na UI.
+/// Substitui cores sólidas por transições suaves que criam sensação
+/// de iluminação, volume e dinamismo.
+class AppGradients {
+  AppGradients._();
+
+  // ─── Primários (verde) ───
+  /// Gradiente principal para AppBar, headers, balance card
+  static const LinearGradient primary = LinearGradient(
+    colors: [Color(0xFF15D978), Color(0xFF0DA85C), Color(0xFF089648)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  /// Gradiente verde mais suave para botões de receita
+  static const LinearGradient incomeButton = LinearGradient(
+    colors: [Color(0xFF1FE07E), Color(0xFF11C76F), Color(0xFF0BAF5E)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  /// Gradiente leve para fundos de ícones de receita
+  static const LinearGradient incomeLight = LinearGradient(
+    colors: [Color(0xFFE8F9F0), Color(0xFFD5F5E3)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // ─── Despesa (vermelho) ───
+  /// Gradiente para botões de despesa e dismiss backgrounds
+  static const LinearGradient expenseButton = LinearGradient(
+    colors: [Color(0xFFFF6B6B), Color(0xFFEF4444), Color(0xFFDC2626)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  /// Gradiente leve para fundos de ícones de despesa
+  static const LinearGradient expenseLight = LinearGradient(
+    colors: [Color(0xFFFEE2E2), Color(0xFFFECACA)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // ─── Superfícies ───
+  /// Gradiente sutil para cards, criando sensação de profundidade
+  static const LinearGradient surfaceCard = LinearGradient(
+    colors: [Color(0xFFFFFFFF), Color(0xFFF8FAFB)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  /// Gradiente para o fundo do scaffold (leve profundidade vertical)
+  static const LinearGradient scaffoldBackground = LinearGradient(
+    colors: [Color(0xFFF0F2F5), Color(0xFFF7F8FA), Color(0xFFF0F2F5)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  /// Gradiente para seções de cabeçalho e badges
+  static const LinearGradient accentBadge = LinearGradient(
+    colors: [Color(0xFFE8F9F0), Color(0xFFD1FAE5)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // ─── Bottom Sheet ───
+  /// Gradiente para cabeçalho do bottom sheet de receita
+  static const LinearGradient sheetHeaderIncome = LinearGradient(
+    colors: [Color(0xFF15D978), Color(0xFF0DA85C)],
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+  );
+
+  /// Gradiente para cabeçalho do bottom sheet de despesa
+  static const LinearGradient sheetHeaderExpense = LinearGradient(
+    colors: [Color(0xFFFF6B6B), Color(0xFFDC2626)],
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+  );
+
+  // ─── Filtro ───
+  /// Gradiente para o painel de filtros
+  static const LinearGradient filterPanel = LinearGradient(
+    colors: [Color(0xFFFFFFFF), Color(0xFFF3FAF7)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // ─── Dark Mode ───
+  /// Gradiente escuro para cards no dark mode
+  static const LinearGradient darkCard = LinearGradient(
+    colors: [Color(0xFF2A2A42), Color(0xFF1E1E34)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  /// Gradiente escuro para AppBar no dark mode
+  static const LinearGradient darkPrimary = LinearGradient(
+    colors: [Color(0xFF1A1A2E), Color(0xFF16162A)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+}
+
 /// Classe dedicada ao sistema de temas do aplicativo.
 /// Centraliza ThemeData, tipografia Montserrat e todos os estilos
 /// de componentes (botões, inputs, cards, bottom sheets).

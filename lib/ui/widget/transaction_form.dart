@@ -9,18 +9,11 @@ import '../../common/patterns/command.dart';
 import '../../common/theme/app_theme.dart';
 import '../../domain/entity/transaction_entity.dart';
 
-/// Formulário para adicionar transações de receita ou despesa.
-///
-/// Re-estilizado com a paleta PicPay — inputs com bordas suaves,
-/// botão verde arredondado, animações de loading.
 class TransactionForm extends StatefulWidget {
-  /// Comando para submeter a transação
   final Command1<void, Failure, TransactionEntity> submitCommand;
 
-  /// Tipo de transação (receita ou despesa)
   final TransactionType type;
 
-  /// Cor do tema para o formulário
   final Color color;
 
   const TransactionForm({
@@ -124,12 +117,14 @@ class _TransactionFormState extends State<TransactionForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ─── Campo: Descrição ───
             TextFormField(
               controller: _titleController,
               decoration: InputDecoration(
                 labelText: 'Descrição',
-                prefixIcon: Icon(Icons.description_rounded, color: widget.color),
+                prefixIcon: Icon(
+                  Icons.description_rounded,
+                  color: widget.color,
+                ),
               ),
               style: GoogleFonts.montserrat(fontSize: 14),
               validator: (value) {
@@ -141,16 +136,19 @@ class _TransactionFormState extends State<TransactionForm> {
             ),
             const SizedBox(height: 16),
 
-            // ─── Campo: Valor ───
             TextFormField(
               controller: _amountController,
               decoration: InputDecoration(
                 labelText: 'Valor',
-                prefixIcon: Icon(Icons.attach_money_rounded, color: widget.color),
+                prefixIcon: Icon(
+                  Icons.attach_money_rounded,
+                  color: widget.color,
+                ),
               ),
               style: GoogleFonts.montserrat(fontSize: 14),
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               validator: (value) {
                 if (value == null || value.isEmpty) return 'Informe um valor';
                 if (double.tryParse(value) == null) {
@@ -164,7 +162,6 @@ class _TransactionFormState extends State<TransactionForm> {
             ),
             const SizedBox(height: 16),
 
-            // ─── Seletor de Data ───
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               decoration: BoxDecoration(
@@ -174,8 +171,11 @@ class _TransactionFormState extends State<TransactionForm> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.calendar_today_rounded,
-                      color: widget.color, size: 20),
+                  Icon(
+                    Icons.calendar_today_rounded,
+                    color: widget.color,
+                    size: 20,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
@@ -202,7 +202,6 @@ class _TransactionFormState extends State<TransactionForm> {
             ),
             const SizedBox(height: 32),
 
-            // ─── Botão de Envio ───
             Watch((context) {
               final isRunning = widget.submitCommand.runningSignal.value;
 
@@ -216,23 +215,25 @@ class _TransactionFormState extends State<TransactionForm> {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: isRunning
-                      ? const SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
+                  child:
+                      isRunning
+                          ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
+                          : Text(
+                            'Adicionar ${widget.type.nameSingular}',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        )
-                      : Text(
-                          'Adicionar ${widget.type.nameSingular}',
-                          style: GoogleFonts.montserrat(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
                 ),
               );
             }),

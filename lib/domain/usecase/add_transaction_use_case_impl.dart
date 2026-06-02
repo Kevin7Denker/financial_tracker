@@ -10,11 +10,7 @@ import 'use_case_contract.dart';
 typedef AddTransactionParams = ({@required TransactionEntity transaction});
 
 class AddTransactionUseCaseImpl
-    implements
-        IUseCaseContract<
-          Result<void, Failure>,
-          AddTransactionParams
-        > {
+    implements IUseCaseContract<Result<void, Failure>, AddTransactionParams> {
   final TransactionRepositoryContract repo;
 
   AddTransactionUseCaseImpl(this.repo);

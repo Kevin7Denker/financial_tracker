@@ -23,6 +23,7 @@ extension TransactionTypeExtension on TransactionType {
     }
   }
 }
+
 class TransactionEntity {
   final String id;
   final String title;
@@ -30,7 +31,6 @@ class TransactionEntity {
   final DateTime date;
   final TransactionType type;
 
-  // Instância estática do Uuid para usar generate()
   static final Uuid _uuid = Uuid();
 
   TransactionEntity({
@@ -103,21 +103,21 @@ class TransactionEntity {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-  
+
     return other is TransactionEntity &&
-      other.id == id &&
-      other.title == title &&
-      other.amount == amount &&
-      other.date == date &&
-      other.type == type;
+        other.id == id &&
+        other.title == title &&
+        other.amount == amount &&
+        other.date == date &&
+        other.type == type;
   }
 
   @override
   int get hashCode {
     return id.hashCode ^
-      title.hashCode ^
-      amount.hashCode ^
-      date.hashCode ^
-      type.hashCode;
+        title.hashCode ^
+        amount.hashCode ^
+        date.hashCode ^
+        type.hashCode;
   }
 }

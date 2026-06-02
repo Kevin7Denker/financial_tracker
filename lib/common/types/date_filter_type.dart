@@ -42,8 +42,9 @@ extension DateFilterTypeExtension on DateFilterType {
 
       case DateFilterType.custom:
         final start = customStart ?? DateTime(now.year, now.month, 1);
-        final end =
-            customEnd ?? DateTime(now.year, now.month + 1, 0, 23, 59, 59);
+        final end = _normalizeToEndOfDay(
+          customEnd ?? DateTime(now.year, now.month + 1, 0),
+        );
         return DateTimeRange(start: start, end: end);
 
       case DateFilterType.all:
@@ -60,4 +61,8 @@ extension SafeRangeExtension on DateTimeRange {
     final newEnd = end.isAfter(maxDate) ? maxDate : end;
     return DateTimeRange(start: start, end: newEnd);
   }
+}
+
+DateTime _normalizeToEndOfDay(DateTime date) {
+  return DateTime(date.year, date.month, date.day, 23, 59, 59);
 }

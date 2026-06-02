@@ -3,7 +3,6 @@ import 'package:financial_tracker/domain/entity/transaction_entity.dart';
 import '../../common/errors/errors_classes.dart';
 import '../../common/patterns/result.dart';
 
-/// Contrato que define operações relacionadas ao estudante.
 abstract class TransactionRepositoryContract {
   Future<Result<TransactionEntity, Failure>> getTransacion(String id);
   Future<Result<List<TransactionEntity>, Failure>> getAllTransacions();

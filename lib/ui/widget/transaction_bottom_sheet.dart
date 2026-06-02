@@ -7,15 +7,9 @@ import '../../common/theme/app_theme.dart';
 import '../../domain/entity/transaction_entity.dart';
 import 'transaction_form.dart';
 
-/// Bottom sheet modal para adicionar transações.
-///
-/// Re-estilizado com bordas arredondadas (24px), cabeçalho verde,
-/// alça de arraste translúcida e animações de entrada suaves.
 class TransactionBottomSheet extends StatelessWidget {
-  /// Tipo da transação (receita ou despesa)
   final TransactionType type;
 
-  /// Comando para submeter a transação
   final Command1<void, Failure, TransactionEntity> submitCommand;
 
   const TransactionBottomSheet({
@@ -24,7 +18,6 @@ class TransactionBottomSheet extends StatelessWidget {
     required this.submitCommand,
   });
 
-  /// Método auxiliar para exibir o bottom sheet como modal
   static Future<void> show({
     required BuildContext context,
     required TransactionType type,
@@ -34,10 +27,9 @@ class TransactionBottomSheet extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => TransactionBottomSheet(
-        type: type,
-        submitCommand: submitCommand,
-      ),
+      builder:
+          (context) =>
+              TransactionBottomSheet(type: type, submitCommand: submitCommand),
     );
   }
 
@@ -58,15 +50,16 @@ class TransactionBottomSheet extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // ─── Cabeçalho colorido ───
           Container(
             decoration: BoxDecoration(
-              color: color,
+              gradient:
+                  isIncome
+                      ? AppGradients.sheetHeaderIncome
+                      : AppGradients.sheetHeaderExpense,
               borderRadius: AppTheme.sheetBorderRadius,
             ),
             child: Column(
               children: [
-                // Alça de arraste
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 12),
                   width: 40,
@@ -76,7 +69,7 @@ class TransactionBottomSheet extends StatelessWidget {
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                // Título
+
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Row(
@@ -104,7 +97,6 @@ class TransactionBottomSheet extends StatelessWidget {
             ),
           ),
 
-          // ─── Formulário ───
           Expanded(
             child: SingleChildScrollView(
               child: Padding(

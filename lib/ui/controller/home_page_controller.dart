@@ -8,21 +8,15 @@ import '../../common/patterns/result.dart';
 import '../../domain/entity/transaction_entity.dart';
 
 class HomePageController {
-  // HomePageController({required TransactionRepositoryContract repo})
-  // : _repo = repo {
   HomePageController({
     required TransactionFacadeUseCases transactionsUseCases,
-    // required GetAllTransactionsUseCaseImpl getAllTransactions,
-    // required GetTransactionUseCaseImpl getTransaction,
   }) : _transactionsUseCases = transactionsUseCases {
-    //  _getAllTransactions = getAllTransactions,
-    //  _getTransaction = getTransaction,
     load = Command0(_loadTransactions);
     searchTransactionsByDate = Command2(_searchTransactionsByDate);
-    saveTransaction = Command1(_saveTransaction);
+    addIncome = Command1(_addIncome);
+    addExpense = Command1(_addExpense);
     undoDelectedTransaction = Command1(_undoDelectedTransaction);
     deleteTransaction = Command1(_deleteTransaction);
-    //loadSample = Command0<void, void>(_resetToSample);
     incomes = Computed(
       () =>
           _transactions.value
@@ -52,19 +46,16 @@ class HomePageController {
     balance = Computed(() => totalIncome.value - totalExpense.value);
   }
 
-  //final TransactionRepositoryContract _repo;
   final TransactionFacadeUseCases _transactionsUseCases;
-  // final GetAllTransactionsUseCaseImpl _getAllTransactions;
-  // final GetTransactionUseCaseImpl _getTransaction;
 
   // commands
   late final Command0<List<TransactionEntity>, Failure> load;
-  late final Command1<void, Failure, TransactionEntity> saveTransaction;
+  late final Command1<void, Failure, TransactionEntity> addIncome;
+  late final Command1<void, Failure, TransactionEntity> addExpense;
   late final Command1<void, Failure, TransactionEntity> undoDelectedTransaction;
   late final Command1<void, Failure, String> deleteTransaction;
   late final Command2<List<TransactionEntity>, Failure, DateTime, DateTime>
   searchTransactionsByDate;
-  //late final Command0<void, void> loadSample;
 
   // signals
   final Signal<List<TransactionEntity>> _transactions = Signal([]);
@@ -91,8 +82,6 @@ class HomePageController {
   ReadonlySignal<List<TransactionEntity>> get transctions => _transactions;
   ReadonlySignal<bool> get isFilterVisible => _isFilterVisible;
 
-  // ReadonlySignal<List<TransactionEntity>> get readonlyExpenses => expenses;
-
   // Carrega lista de transações do repositório
   Future<Result<List<TransactionEntity>, Failure>> _searchTransactionsByDate(
     DateTime startDate,
@@ -102,8 +91,6 @@ class HomePageController {
       startDate: startDate,
       endDate: endDate,
     ));
-    // final result = await _getAllTransactions.call();
-    // final result = await _repo.getAllTransacions();
 
     result.fold(
       onSuccess: (transactions) {
@@ -121,8 +108,6 @@ class HomePageController {
   // Carrega lista de transações do repositório
   Future<Result<List<TransactionEntity>, Failure>> _loadTransactions() async {
     final result = await _transactionsUseCases.getAll.call(());
-    // final result = await _getAllTransactions.call();
-    // final result = await _repo.getAllTransacions();
 
     result.fold(
       onSuccess: (transactions) {
@@ -134,16 +119,33 @@ class HomePageController {
     return result;
   }
 
-  // Salva nova transação e atualiza signal
-  Future<Result<void, Failure>> _saveTransaction(
+  // Salva nova receita e atualiza signal
+  Future<Result<void, Failure>> _addIncome(
     TransactionEntity transaction,
   ) async {
+    final t = transaction.copyWith(type: TransactionType.income);
     final result = await _transactionsUseCases.addTransaction.call((
-      transaction: transaction,
+      transaction: t,
     ));
 
     if (result.isSuccess) {
-      _transactions.value = [..._transactions.value, transaction];
+      _transactions.value = [..._transactions.value, t];
+    }
+
+    return result;
+  }
+
+  // Salva nova despesa e atualiza signal
+  Future<Result<void, Failure>> _addExpense(
+    TransactionEntity transaction,
+  ) async {
+    final t = transaction.copyWith(type: TransactionType.expense);
+    final result = await _transactionsUseCases.addTransaction.call((
+      transaction: t,
+    ));
+
+    if (result.isSuccess) {
+      _transactions.value = [..._transactions.value, t];
     }
 
     return result;
@@ -215,10 +217,4 @@ class HomePageController {
     _startDate = startDate;
     _endDate = endDate;
   }
-
-  // Recarrega a lista com dados fictícios
-  // Future<Result<void, void>> _resetToSample() async {
-  //   transactions.value = TransactionEntity.sampleList();
-  //   return const Success(null);
-  // }
 }

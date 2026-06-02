@@ -5,26 +5,13 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../common/theme/app_theme.dart';
 import '../../common/utils/formatter.dart';
 
-/// Card principal do dashboard mostrando o saldo do usuário.
-///
-/// Features:
-/// - Gradiente verde vibrante como fundo
-/// - Botão olho para ocultar/mostrar saldo (AnimatedSwitcher)
-/// - Resumo de receitas e despesas na parte inferior
-/// - Hero animation para transição de tela
-/// - Scale animation na entrada
-/// - Haptic feedback ao tocar no ícone do olho
 class AnimatedBalanceCard extends StatefulWidget {
-  /// Saldo atual do usuário
   final double balance;
 
-  /// Total de receitas
   final double totalIncome;
 
-  /// Total de despesas
   final double totalExpense;
 
-  /// Saudação do usuário (ex: "Boa tarde, Kevin")
   final String greeting;
 
   const AnimatedBalanceCard({
@@ -79,24 +66,24 @@ class _AnimatedBalanceCardState extends State<AnimatedBalanceCard>
           margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [AppColors.primary, AppColors.primaryDark],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            gradient: AppGradients.primary,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.3),
-                blurRadius: 24,
-                offset: const Offset(0, 8),
+                color: AppColors.primary.withValues(alpha: 0.35),
+                blurRadius: 28,
+                offset: const Offset(0, 10),
+              ),
+              BoxShadow(
+                color: AppColors.primary.withValues(alpha: 0.15),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ─── Saudação + Botão olho ───
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -114,7 +101,6 @@ class _AnimatedBalanceCardState extends State<AnimatedBalanceCard>
               ),
               const SizedBox(height: 8),
 
-              // ─── Label "Saldo disponível" ───
               Text(
                 'Saldo disponível',
                 style: GoogleFonts.montserrat(
@@ -125,7 +111,6 @@ class _AnimatedBalanceCardState extends State<AnimatedBalanceCard>
               ),
               const SizedBox(height: 4),
 
-              // ─── Valor do saldo (animado) ───
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 transitionBuilder: (child, animation) {
@@ -156,7 +141,6 @@ class _AnimatedBalanceCardState extends State<AnimatedBalanceCard>
 
               const SizedBox(height: 20),
 
-              // ─── Resumo: Receitas e Despesas ───
               _buildSummaryRow(),
             ],
           ),
@@ -165,7 +149,6 @@ class _AnimatedBalanceCardState extends State<AnimatedBalanceCard>
     );
   }
 
-  /// Botão de ocultar/mostrar saldo com ripple
   Widget _buildEyeButton() {
     return Material(
       color: Colors.white.withValues(alpha: 0.15),
@@ -177,8 +160,9 @@ class _AnimatedBalanceCardState extends State<AnimatedBalanceCard>
           padding: const EdgeInsets.all(8),
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),
-            transitionBuilder: (child, animation) =>
-                FadeTransition(opacity: animation, child: child),
+            transitionBuilder:
+                (child, animation) =>
+                    FadeTransition(opacity: animation, child: child),
             child: Icon(
               _isHidden
                   ? Icons.visibility_off_rounded
@@ -193,7 +177,6 @@ class _AnimatedBalanceCardState extends State<AnimatedBalanceCard>
     );
   }
 
-  /// Linha inferior com receitas e despesas
   Widget _buildSummaryRow() {
     return Container(
       padding: const EdgeInsets.all(14),
@@ -203,31 +186,32 @@ class _AnimatedBalanceCardState extends State<AnimatedBalanceCard>
       ),
       child: Row(
         children: [
-          // Receitas
           Expanded(
             child: _buildSummaryItem(
               icon: Icons.arrow_upward_rounded,
               label: 'Receitas',
-              value: _isHidden
-                  ? '••••'
-                  : Formatter.formatCurrency(widget.totalIncome),
+              value:
+                  _isHidden
+                      ? '••••'
+                      : Formatter.formatCurrency(widget.totalIncome),
               color: Colors.white,
             ),
           ),
-          // Divisor vertical
+
           Container(
             width: 1,
             height: 36,
             color: Colors.white.withValues(alpha: 0.2),
           ),
-          // Despesas
+
           Expanded(
             child: _buildSummaryItem(
               icon: Icons.arrow_downward_rounded,
               label: 'Despesas',
-              value: _isHidden
-                  ? '••••'
-                  : Formatter.formatCurrency(widget.totalExpense),
+              value:
+                  _isHidden
+                      ? '••••'
+                      : Formatter.formatCurrency(widget.totalExpense),
               color: Colors.white,
             ),
           ),
@@ -236,7 +220,6 @@ class _AnimatedBalanceCardState extends State<AnimatedBalanceCard>
     );
   }
 
-  /// Item individual do resumo (ícone + label + valor)
   Widget _buildSummaryItem({
     required IconData icon,
     required String label,
